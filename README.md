@@ -3,6 +3,32 @@
 Widens and recolors scrollbars on every site, so they're easy to see and grab
 regardless of what pointing device you use.
 
+## Why I built this
+
+I rely on a gyroscopic mouse to use my computer. On more and more of the modern
+web, that's a problem: scrollbars are styled to be razor-thin, only appear on
+hover, or are hidden completely. Websites today seem to be designed on the
+assumption that everyone scrolls with a mouse wheel or a trackpad flick — and
+if you can't, you're left trying to land a pointer on a 4-pixel sliver of a
+scrollbar (if there's one at all).
+
+For people with motor disabilities, that tiny target isn't a minor annoyance —
+it can make a site effectively unusable. Fitts's law is unforgiving: the
+smaller the target, the harder and slower it is to hit, and tremor or limited
+fine motor control multiplies that cost.
+
+I couldn't find an extension that reliably fixed this on every site — many
+sites deliberately override scrollbar styling with `!important` rules that
+defeat ordinary CSS injection — so I built one. AccessiScroll gives you back a
+big, visible, grabbable scrollbar on any site you choose, in whatever size and
+colors work for your eyes and your hands.
+
+This project is part of my broader work on accessibility at
+[myaccessibility.ai](https://myaccessibility.ai/). You can also find me on
+[LinkedIn](https://www.linkedin.com/in/chris-venter/),
+[Instagram](https://www.instagram.com/myaccessibility) and
+[YouTube](https://www.youtube.com/@myacessibility).
+
 ## Install (unpacked, for personal use)
 
 1. Open `chrome://extensions` in Chrome.
@@ -29,10 +55,12 @@ regardless of what pointing device you use.
 Scrollbar CSS is injected as a *user-origin* stylesheet
 (`chrome.scripting.insertCSS` with `origin: "USER"`), which is the one
 mechanism guaranteed to win cascade fights against sites that hide/thin their
-scrollbar with `!important`. It forces `scrollbar-width: auto` (to defeat
-`thin`/`none`) and sets the legacy `::-webkit-scrollbar` pseudo-elements to
-your chosen pixel width and colors, since the standard CSS scrollbar
-properties don't support arbitrary widths.
+scrollbar with `!important`. It styles the `::-webkit-scrollbar`
+pseudo-elements with your chosen pixel width and colors. The standard CSS
+`scrollbar-width`/`scrollbar-color` properties are deliberately *not* used:
+`scrollbar-width` can't express pixel sizes (only `auto`/`thin`/`none`), and in
+Chrome 121+ setting either standard property causes the browser to ignore all
+`::-webkit-scrollbar-*` rules — which would silently break the width control.
 
 ## Known limitations
 
