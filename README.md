@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="icons/logo.png" alt="AccessiScroll logo" width="360">
+</p>
+
 # AccessiScroll
 
 Widens and recolors scrollbars on every site, so they're easy to see and grab
