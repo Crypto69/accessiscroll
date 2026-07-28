@@ -1,0 +1,14 @@
+# Claude Code local tooling / instructions
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+
+# Playwright artifacts
+.playwright-cli/
+.playwright/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/

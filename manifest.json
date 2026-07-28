@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "AccessiScroll",
+  "version": "1.0.0",
+  "description": "Widens and recolors scrollbars on every site so they're easy to see and grab, no matter what input device you use.",
+  "permissions": ["scripting", "storage", "webNavigation"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "options/options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "toggle-site": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Turn AccessiScroll on/off for the current site"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AccessiScroll</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header class="header">
+    <img src="../icons/icon32.png" alt="" width="24" height="24" />
+    <h1>AccessiScroll</h1>
+  </header>
+
+  <section class="row row-toggle">
+    <label class="switch-label" for="site-toggle">
+      <span id="site-toggle-text">Wide scrollbars on this site</span>
+      <button
+        id="site-toggle"
+        class="switch"
+        type="button"
+        role="switch"
+        aria-checked="true"
+        aria-labelledby="site-toggle-text"
+      >
+        <span class="switch-knob"></span>
+      </button>
+    </label>
+  </section>
+
+  <section class="row">
+    <label for="size-slider" id="size-label">Size: <span id="size-value">20</span>px</label>
+    <input
+      type="range"
+      id="size-slider"
+      min="12"
+      max="32"
+      step="1"
+      aria-labelledby="size-label"
+    />
+  </section>
+
+  <section class="row row-colors">
+    <div class="color-field">
+      <label for="thumb-color">Thumb color</label>
+      <input type="color" id="thumb-color" aria-label="Scrollbar thumb color" />
+    </div>
+    <div class="color-field">
+      <label for="track-color">Track color</label>
+      <input type="color" id="track-color" aria-label="Scrollbar track color" />
+    </div>
+  </section>
+
+  <section class="row row-toggle">
+    <label class="switch-label" for="global-toggle">
+      <span id="global-toggle-text">Use AccessiScroll on all sites</span>
+      <button
+        id="global-toggle"
+        class="switch"
+        type="button"
+        role="switch"
+        aria-checked="true"
+        aria-labelledby="global-toggle-text"
+      >
+        <span class="switch-knob"></span>
+      </button>
+    </label>
+  </section>
+
+  <footer class="footer">
+    <button id="reset-btn" type="button" class="link-btn">Reset to defaults</button>
+    <button id="options-btn" type="button" class="link-btn">Manage disabled sites</button>
+  </footer>
+
+  <p id="status" class="status" role="status" aria-live="polite"></p>
+
+  <script src="popup.js"></script>
+</body>
+</html>
