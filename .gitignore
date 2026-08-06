@@ -12,3 +12,6 @@ CLAUDE.local.md
 
 # Python
 __pycache__/
+
+# Store upload zips (rebuild with scripts/package.sh)
+dist/

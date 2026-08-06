@@ -3,6 +3,8 @@
   "name": "AccessiScroll",
   "version": "1.0.0",
   "description": "Widens and recolors scrollbars on every site so they're easy to see and grab, no matter what input device you use.",
+  "homepage_url": "https://github.com/Crypto69/accessiscroll",
+  "author": "Chris Venter",
   "permissions": ["scripting", "storage", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "background": {
