@@ -84,3 +84,7 @@ Chrome 121+ setting either standard property causes the browser to ignore all
 - On slow-loading pages you may briefly see the page's original scrollbar
   before AccessiScroll applies, since injection happens right after
   navigation rather than before first paint.
+
+## License
+
+[MIT](LICENSE)
