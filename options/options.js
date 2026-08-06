@@ -41,4 +41,6 @@ resetBtn.addEventListener("click", async () => {
   await renderSiteList();
 });
 
+document.getElementById("version").textContent = chrome.runtime.getManifest().version;
+
 renderSiteList();

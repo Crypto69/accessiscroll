@@ -34,6 +34,7 @@
     h1 { font-size: 22px; }
     p.lead { color: var(--muted); }
     h2 { font-size: 16px; margin-top: 32px; }
+    h3 { font-size: 15px; margin-top: 24px; }
     ul#site-list {
       list-style: none;
       padding: 0;
@@ -72,6 +73,16 @@
     }
     button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     .status { color: var(--muted); font-size: 13px; min-height: 18px; }
+    a { color: var(--accent); }
+    a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    ul.about-links {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+    }
+    ul.about-links li { padding: 4px 0; }
+    ul.about-links a::after { content: " \2197"; font-size: 12px; color: var(--muted); }
+    .footnote { color: var(--muted); font-size: 13px; }
   </style>
 </head>
 <body>
@@ -89,6 +100,45 @@
   <h2>Reset</h2>
   <p class="lead">This restores default size/colors and re-enables AccessiScroll everywhere.</p>
   <button id="reset-btn" type="button">Reset all settings to defaults</button>
+
+  <h2>About AccessiScroll</h2>
+  <p class="lead">Version <span id="version"></span> — built with determination, passion, and assistive technology.</p>
+  <p>
+    In August of 2022, my life changed forever. What began as a beautiful evening in Paris
+    during a business trip ended with a catastrophic spinal cord injury that left me paralysed
+    from the shoulders down. In an instant, I went from walking through the streets of Paris
+    to fighting for my life on a cold bathroom floor, barely able to breathe or call for help.
+  </p>
+  <p>
+    What followed was months of survival, surgeries, intensive care, and the long road of
+    rehabilitation. I endured searing pain, trauma, and moments of hopelessness that nearly
+    broke me. But I also discovered something else: the power of the human spirit to endure.
+  </p>
+  <p>
+    Technology has always been my passion and I needed to find a way to get back the
+    capability to continue using technology to help me create, explore and innovate.
+  </p>
+  <p>
+    I built this entire extension without the use of my hands—using a head-tracking Bluetooth
+    mouse, voice commands, and assistive tech that helps me code, create, and connect. If you
+    want to see my technology set up and how I do this check out my Instagram link below.
+  </p>
+  <p>
+    I built this extension because modern websites ship razor-thin, low-contrast scrollbars
+    that are almost impossible to see and grab with a head-tracking mouse. AccessiScroll
+    widens and recolors the scrollbar on every site so it's easy to find and drag, no matter
+    what input device you use. That's all it does. If you're reading this, hopefully it's
+    helping you too.
+  </p>
+
+  <h3>Follow My Journey</h3>
+  <ul class="about-links">
+    <li><a href="https://www.instagram.com/myaccessibility/" target="_blank" rel="noopener">Instagram: @myaccessibility</a></li>
+    <li><a href="https://www.youtube.com/@myaccessibility" target="_blank" rel="noopener">YouTube: @myaccessibility</a></li>
+    <li><a href="https://myaccessibility.ai/" target="_blank" rel="noopener">myaccessibility.ai</a></li>
+    <li><a href="https://github.com/Crypto69/accessiscroll" target="_blank" rel="noopener">Source code on GitHub</a></li>
+  </ul>
+  <p class="footnote">See my assistive technology setup, watch tutorials, and learn more about accessible coding.</p>
 
   <p id="status" class="status" role="status" aria-live="polite"></p>
 
