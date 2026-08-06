@@ -7,6 +7,8 @@
 Widens and recolors scrollbars on every site, so they're easy to see and grab
 regardless of what pointing device you use.
 
+**[Install AccessiScroll from the Chrome Web Store](https://chromewebstore.google.com/detail/accessiscroll/keailjpjmnipfpkkbldeknakkggjofji)**
+
 ## Why I built this
 
 I rely on a gyroscopic mouse to use my computer. On more and more of the modern
@@ -33,7 +35,16 @@ This project is part of my broader work on accessibility at
 [Instagram](https://www.instagram.com/myaccessibility) and
 [YouTube](https://www.youtube.com/@myacessibility).
 
-## Install (unpacked, for personal use)
+## Install
+
+The easiest way is from the Chrome Web Store:
+
+**https://chromewebstore.google.com/detail/accessiscroll/keailjpjmnipfpkkbldeknakkggjofji**
+
+Click **Add to Chrome**, then pin the extension (puzzle-piece icon in the
+toolbar → pin AccessiScroll) so it's always one click away.
+
+### Install unpacked (for development)
 
 1. Open `chrome://extensions` in Chrome.
 2. Turn on **Developer mode** (top-right toggle).
