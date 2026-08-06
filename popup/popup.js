@@ -8,6 +8,8 @@ const globalToggle = document.getElementById("global-toggle");
 const resetBtn = document.getElementById("reset-btn");
 const optionsBtn = document.getElementById("options-btn");
 const status = document.getElementById("status");
+const controls = document.getElementById("controls");
+const restrictionNotice = document.getElementById("restriction-notice");
 
 function send(message) {
   return chrome.runtime.sendMessage(message);
@@ -23,7 +25,19 @@ function announce(text) {
 
 async function init() {
   const state = await send({ type: "getPopupState" });
-  const { hostname, settings, siteEnabled } = state;
+  const { hostname, settings, siteEnabled, restriction } = state;
+
+  // On pages Chrome blocks extensions from touching, the controls would appear
+  // to work while changing nothing. Explain instead of misleading; the footer
+  // stays available so settings and disabled sites remain reachable.
+  if (restriction) {
+    restrictionNotice.textContent = `${restriction} Your settings still apply everywhere else.`;
+    restrictionNotice.hidden = false;
+    controls.hidden = true;
+    return;
+  }
+  restrictionNotice.hidden = true;
+  controls.hidden = false;
 
   sizeSlider.value = settings.sizePx;
   sizeValue.textContent = settings.sizePx;

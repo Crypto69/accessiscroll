@@ -42,6 +42,47 @@ html[data-accessiscroll] *::-webkit-scrollbar-corner {
 
 const INJECTION = { css: STATIC_CSS, origin: "USER" };
 
+// Chrome refuses to script or inject CSS into these pages no matter what
+// host permissions are granted — `<all_urls>` silently excludes them. Scripting
+// the Web Store in particular would let an extension fake install buttons or
+// rewrite reviews, so the block is a security boundary, not something to work
+// around. We detect these up front to skip pointless injection attempts and to
+// let the popup explain the situation instead of showing dead controls.
+const RESTRICTED_PROTOCOLS = new Set([
+  "chrome:",
+  "chrome-extension:",
+  "chrome-untrusted:",
+  "devtools:",
+  "edge:",
+  "about:",
+  "view-source:",
+]);
+
+// chrome.google.com is only restricted under /webstore; the rest of the host is
+// ordinary web content, so match the path rather than blocking the whole domain.
+function isWebStoreUrl(parsed) {
+  if (parsed.hostname === "chromewebstore.google.com") return true;
+  return parsed.hostname === "chrome.google.com" && parsed.pathname.startsWith("/webstore");
+}
+
+// Returns a human-readable reason when Chrome forbids injection on `url`,
+// or null when the page should be injectable.
+function restrictionReason(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return "This page can't be styled.";
+  }
+  if (RESTRICTED_PROTOCOLS.has(parsed.protocol)) {
+    return "Chrome doesn't allow extensions to run on browser pages.";
+  }
+  if (isWebStoreUrl(parsed)) {
+    return "Chrome doesn't allow extensions to run on the Chrome Web Store.";
+  }
+  return null;
+}
+
 // Tracks each tab's top-level hostname so sub-frame injections (iframes) use
 // the *page's* site setting rather than the iframe's own origin.
 const frameSiteByTab = new Map();
@@ -144,7 +185,13 @@ async function injectIntoFrame(tabId, frameId, settings) {
       args: [settings],
     });
   } catch (err) {
-    // Frame may be a chrome:// page, PDF viewer, or already gone — ignore.
+    // Frame may be a restricted page, a PDF viewer, or already gone. These are
+    // expected and unactionable, but logging keeps genuine injection failures
+    // visible in the service worker console instead of vanishing silently.
+    console.debug(
+      `AccessiScroll: could not inject into tab ${tabId} frame ${frameId}:`,
+      err?.message ?? err
+    );
   }
 }
 
@@ -159,7 +206,12 @@ async function removeFromFrame(tabId, frameId) {
       ...INJECTION,
     });
   } catch (err) {
-    // Ignore — frame may not have had CSS injected (e.g. restricted page).
+    // Frame may not have had CSS injected (e.g. restricted page) — expected,
+    // but logged so real removal failures are diagnosable.
+    console.debug(
+      `AccessiScroll: could not remove from tab ${tabId} frame ${frameId}:`,
+      err?.message ?? err
+    );
   }
 }
 
@@ -169,6 +221,8 @@ async function handleNavigation(details) {
   if (frameId === 0) {
     frameSiteByTab.set(tabId, hostnameFromUrl(url));
   }
+  // Chrome would reject the injection anyway; skipping avoids the round trip.
+  if (restrictionReason(url)) return;
   const siteHostname = frameSiteByTab.get(tabId) ?? hostnameFromUrl(url);
 
   const enabled = await isSiteEnabled(siteHostname);
@@ -248,6 +302,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
           hostname,
           settings,
           siteEnabled: hostname ? !disabled.has(hostname) : false,
+          // Non-null when Chrome forbids styling this tab, so the popup can
+          // explain rather than offer controls that silently do nothing.
+          restriction: tab?.url ? restrictionReason(tab.url) : "This page can't be styled.",
         });
         break;
       }

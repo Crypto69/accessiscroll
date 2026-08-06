@@ -154,6 +154,21 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
+.notice {
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.notice[hidden] {
+  display: none;
+}
+
 .status {
   min-height: 16px;
   font-size: 12px;
