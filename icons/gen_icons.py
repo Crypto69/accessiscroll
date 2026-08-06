@@ -30,7 +30,14 @@ def make_icon(size):
     )
     return img
 
-for size in (16, 32, 48, 128):
+# Toolbar icons are full-bleed so the mark reads larger at small sizes.
+for size in (16, 32, 48):
     make_icon(size).save(f"icon{size}.png")
+
+# Store icon spec: 128x128 canvas with 96x96 artwork and 16px transparent
+# padding (Chrome Web Store adds its own framing around the full canvas).
+store = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+store.paste(make_icon(96), (16, 16))
+store.save("icon128.png")
 
 print("done")
