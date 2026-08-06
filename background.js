@@ -16,19 +16,26 @@ const DEFAULT_SETTINGS = {
 // browser ignore every `::-webkit-scrollbar-*` rule for that subtree — the
 // colors would still apply but the pixel width below would silently stop
 // working (scrollbar-width only accepts auto/thin/none, not lengths).
+// All rules are gated on <html data-accessiscroll>: chrome.scripting.removeCSS
+// silently fails to remove USER-origin stylesheets, so "off" is implemented by
+// removing the attribute (rules stop matching) rather than removing the CSS.
 const STATIC_CSS = `
-*::-webkit-scrollbar {
+html[data-accessiscroll]::-webkit-scrollbar,
+html[data-accessiscroll] *::-webkit-scrollbar {
   width: var(--accessiscroll-size, 20px) !important;
   height: var(--accessiscroll-size, 20px) !important;
 }
-*::-webkit-scrollbar-thumb {
+html[data-accessiscroll]::-webkit-scrollbar-thumb,
+html[data-accessiscroll] *::-webkit-scrollbar-thumb {
   background-color: var(--accessiscroll-thumb, #5b5b5b) !important;
   border-radius: var(--accessiscroll-radius, 8px) !important;
 }
-*::-webkit-scrollbar-track {
+html[data-accessiscroll]::-webkit-scrollbar-track,
+html[data-accessiscroll] *::-webkit-scrollbar-track {
   background-color: var(--accessiscroll-track, #e8e8e8) !important;
 }
-*::-webkit-scrollbar-corner {
+html[data-accessiscroll]::-webkit-scrollbar-corner,
+html[data-accessiscroll] *::-webkit-scrollbar-corner {
   background-color: var(--accessiscroll-track, #e8e8e8) !important;
 }
 `;
@@ -69,14 +76,39 @@ async function isSiteEnabled(hostname) {
 // chrome.scripting.executeScript — must not close over outer-scope variables.
 function applyVarsInPage(values) {
   const root = document.documentElement;
-  root.style.setProperty("--accessiscroll-size", `${values.sizePx}px`);
-  root.style.setProperty("--accessiscroll-thumb", values.thumbColor);
-  root.style.setProperty("--accessiscroll-track", values.trackColor);
-  root.style.setProperty("--accessiscroll-radius", `${values.radiusPx}px`);
+  const apply = () => {
+    root.setAttribute("data-accessiscroll", "");
+    root.style.setProperty("--accessiscroll-size", `${values.sizePx}px`);
+    root.style.setProperty("--accessiscroll-thumb", values.thumbColor);
+    root.style.setProperty("--accessiscroll-track", values.trackColor);
+    root.style.setProperty("--accessiscroll-radius", `${values.radiusPx}px`);
+  };
+  apply();
+  // Some sites (e.g. Shopify storefronts) rewrite <html>'s attributes during
+  // hydration, wiping the variables and the gate attribute — watch and
+  // restore them.
+  window.__accessiscrollObserver?.disconnect();
+  const observer = new MutationObserver(() => {
+    if (
+      !root.style.getPropertyValue("--accessiscroll-size") ||
+      !root.hasAttribute("data-accessiscroll")
+    ) {
+      apply();
+    }
+  });
+  observer.observe(root, {
+    attributes: true,
+    attributeFilter: ["style", "data-accessiscroll"],
+  });
+  window.__accessiscrollObserver = observer;
 }
 
 function clearVarsInPage() {
+  window.__accessiscrollObserver?.disconnect();
+  delete window.__accessiscrollObserver;
+  window.__accessiscrollInjected = false;
   const root = document.documentElement;
+  root.removeAttribute("data-accessiscroll");
   root.style.removeProperty("--accessiscroll-size");
   root.style.removeProperty("--accessiscroll-thumb");
   root.style.removeProperty("--accessiscroll-track");
@@ -85,10 +117,27 @@ function clearVarsInPage() {
 
 async function injectIntoFrame(tabId, frameId, settings) {
   try {
-    await chrome.scripting.insertCSS({
+    // One CSS injection per document: this runs on several navigation events
+    // per frame (see handleNavigation) and injected stylesheets stack, so
+    // each unguarded insertCSS would need its own removeCSS to undo. The
+    // flag lives in the extension's isolated world, which is reset whenever
+    // the document is replaced — exactly when re-injection is needed. The
+    // check-and-set is a single script call, so concurrent events can't both
+    // see "not injected".
+    const [{ result: alreadyInjected } = {}] = await chrome.scripting.executeScript({
       target: { tabId, frameIds: [frameId] },
-      ...INJECTION,
+      func: () => {
+        const was = window.__accessiscrollInjected === true;
+        window.__accessiscrollInjected = true;
+        return was;
+      },
     });
+    if (!alreadyInjected) {
+      await chrome.scripting.insertCSS({
+        target: { tabId, frameIds: [frameId] },
+        ...INJECTION,
+      });
+    }
     await chrome.scripting.executeScript({
       target: { tabId, frameIds: [frameId] },
       func: applyVarsInPage,
@@ -115,7 +164,7 @@ async function removeFromFrame(tabId, frameId) {
 }
 
 // Fires once per frame per navigation (main frame and every iframe).
-chrome.webNavigation.onCommitted.addListener(async (details) => {
+async function handleNavigation(details) {
   const { tabId, frameId, url } = details;
   if (frameId === 0) {
     frameSiteByTab.set(tabId, hostnameFromUrl(url));
@@ -127,7 +176,15 @@ chrome.webNavigation.onCommitted.addListener(async (details) => {
 
   const settings = await getSettings();
   await injectIntoFrame(tabId, frameId, settings);
-});
+}
+
+// Inject at onCommitted so styling lands as early as possible, then again at
+// onDOMContentLoaded/onCompleted: some sites (e.g. Shopify storefronts)
+// replace the committed document while loading, which silently discards the
+// first injection. Re-injecting is idempotent.
+chrome.webNavigation.onCommitted.addListener(handleNavigation);
+chrome.webNavigation.onDOMContentLoaded.addListener(handleNavigation);
+chrome.webNavigation.onCompleted.addListener(handleNavigation);
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   frameSiteByTab.delete(tabId);
