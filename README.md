@@ -33,7 +33,7 @@ This project is part of my broader work on accessibility at
 [myaccessibility.ai](https://myaccessibility.ai/). You can also find me on
 [LinkedIn](https://www.linkedin.com/in/chris-venter/),
 [Instagram](https://www.instagram.com/myaccessibility) and
-[YouTube](https://www.youtube.com/@myacessibility).
+[YouTube](https://www.youtube.com/@myaccessibility).
 
 ## Install
 
