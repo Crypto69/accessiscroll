@@ -11,17 +11,28 @@ const DEFAULT_SETTINGS = {
   enabledGlobally: true,
 };
 
-// NOTE: deliberately no `scrollbar-color`/`scrollbar-width` rules here. In
-// Chrome 121+, setting either standard property to a non-auto value makes the
-// browser ignore every `::-webkit-scrollbar-*` rule for that subtree — the
-// colors would still apply but the pixel width below would silently stop
-// working (scrollbar-width only accepts auto/thin/none, not lengths).
+// NOTE on the standard `scrollbar-width`/`scrollbar-color` properties: in
+// Chrome 121+, any element with either set to a non-auto value has every
+// `::-webkit-scrollbar-*` rule ignored — so a site's `scrollbar-width: thin`
+// (e.g. claude.ai's chat pane) would silently defeat the pixel width below.
+// We therefore force both back to `auto` on every element. We never set them
+// to anything *else*: `scrollbar-width` can't express pixel sizes (only
+// auto/thin/none), so the `::-webkit-scrollbar` rules must stay in charge.
+// `display: block` on the scrollbar defeats the other common hiding trick
+// (`::-webkit-scrollbar { display: none }`); `min-height`/`min-width` on the
+// thumb stops it shrinking to a sliver inside very long scroll containers.
 // All rules are gated on <html data-accessiscroll>: chrome.scripting.removeCSS
 // silently fails to remove USER-origin stylesheets, so "off" is implemented by
 // removing the attribute (rules stop matching) rather than removing the CSS.
 const STATIC_CSS = `
+html[data-accessiscroll],
+html[data-accessiscroll] * {
+  scrollbar-width: auto !important;
+  scrollbar-color: auto !important;
+}
 html[data-accessiscroll]::-webkit-scrollbar,
 html[data-accessiscroll] *::-webkit-scrollbar {
+  display: block !important;
   width: var(--accessiscroll-size, 20px) !important;
   height: var(--accessiscroll-size, 20px) !important;
 }
@@ -29,6 +40,8 @@ html[data-accessiscroll]::-webkit-scrollbar-thumb,
 html[data-accessiscroll] *::-webkit-scrollbar-thumb {
   background-color: var(--accessiscroll-thumb, #5b5b5b) !important;
   border-radius: var(--accessiscroll-radius, 8px) !important;
+  min-height: var(--accessiscroll-min-thumb, 48px) !important;
+  min-width: var(--accessiscroll-min-thumb, 48px) !important;
 }
 html[data-accessiscroll]::-webkit-scrollbar-track,
 html[data-accessiscroll] *::-webkit-scrollbar-track {

@@ -71,11 +71,17 @@ Scrollbar CSS is injected as a *user-origin* stylesheet
 (`chrome.scripting.insertCSS` with `origin: "USER"`), which is the one
 mechanism guaranteed to win cascade fights against sites that hide/thin their
 scrollbar with `!important`. It styles the `::-webkit-scrollbar`
-pseudo-elements with your chosen pixel width and colors. The standard CSS
-`scrollbar-width`/`scrollbar-color` properties are deliberately *not* used:
-`scrollbar-width` can't express pixel sizes (only `auto`/`thin`/`none`), and in
-Chrome 121+ setting either standard property causes the browser to ignore all
-`::-webkit-scrollbar-*` rules — which would silently break the width control.
+pseudo-elements with your chosen pixel width and colors, and gives the thumb a
+minimum size so it can't shrink to a sliver inside very long chat panes.
+
+The standard CSS `scrollbar-width`/`scrollbar-color` properties are forced back
+to `auto` on every element, but never set to anything else. In Chrome 121+ any
+element with either property set to a non-`auto` value (e.g. a chat pane styled
+with `scrollbar-width: thin`, as on claude.ai) has all its
+`::-webkit-scrollbar-*` rules ignored — so a site's "thin" setting would
+otherwise silently defeat the width control. `scrollbar-width` itself can't
+express pixel sizes (only `auto`/`thin`/`none`), which is why the
+`::-webkit-scrollbar` rules do the real work.
 
 ## Known limitations
 
