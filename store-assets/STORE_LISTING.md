@@ -16,7 +16,7 @@ presents them.
 5. In Account → EU Digital Services Act, declare **Non-Trader**
    (free, non-commercial extension — no address/phone verification needed).
 
-Then: **Add new item** → upload `dist/accessiscroll-1.0.0.zip` (built by
+Then: **Add new item** → upload `dist/accessiscroll-1.0.1.zip` (built by
 `scripts/package.sh`).
 
 ---
